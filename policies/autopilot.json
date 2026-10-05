@@ -1,0 +1,91 @@
+{
+  "_comment": [
+    "Autopilot policy: a settlement agent allowed to capture approved orders,",
+    "but only within a per-order cap and only with human sign-off above the",
+    "approval threshold. Used by examples/offline_demo.py.",
+    "",
+    "Contrast with policy.example.json, which does not grant capture at all.",
+    "The difference between the two files is the entire authorisation surface."
+  ],
+
+  "agent_id": "paypal-settlement-agent",
+  "user_id": "merchant:ACME-MERCH-4417",
+  "budget_limit": 500.0,
+  "approval_threshold_cost": 100.0,
+
+  "allowed_action_types": [
+    "paypal_order_get",
+    "paypal_order_create",
+    "paypal_order_capture",
+    "paypal_invoice_list",
+    "paypal_dispute_list"
+  ],
+
+  "allow": [
+    {
+      "action": "paypal_order_get",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/order/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{6,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_order_create",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/order/*"],
+      "match": "glob",
+      "methods": ["POST"],
+      "max_cost": 75.0,
+      "params": {
+        "required": ["intent", "purchase_units"],
+        "additional_properties": false,
+        "properties": {
+          "intent": { "type": "string", "enum": ["CAPTURE", "AUTHORIZE"] },
+          "purchase_units": { "type": "array" }
+        }
+      }
+    },
+    {
+      "action": "paypal_order_capture",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/order/*"],
+      "match": "glob",
+      "methods": ["POST"],
+      "max_cost": 300.0,
+      "requires_approval": true,
+      "forbidden_targets": ["*unverified*"],
+      "forbid_match": "glob",
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{6,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_invoice_list",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/invoice/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "additional_properties": false,
+        "properties": {}
+      }
+    },
+    {
+      "action": "paypal_dispute_list",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/dispute/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "additional_properties": false,
+        "properties": {}
+      }
+    }
+  ]
+}

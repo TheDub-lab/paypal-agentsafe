@@ -1,0 +1,73 @@
+[project]
+name = "paypal-guard"
+version = "0.1.0"
+description = "Enforceable governance for AI agents that spend money through PayPal — closed action vocabulary, deny-by-default scope, spend caps, approval gates, kill switch, hash-chained audit"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "Michael" }]
+keywords = [
+    "paypal",
+    "ai-agents",
+    "agent-safety",
+    "authorization",
+    "spend-limits",
+    "payments",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Artificial Intelligence",
+]
+
+# No runtime dependencies. The guard, the policy compiler, the amount extractor
+# and the audit trail are all stdlib, so `pip install .` gives a working demo
+# and the tests run with no network and no PayPal account.
+dependencies = []
+
+[project.optional-dependencies]
+# Everything needed to run against the real PayPal sandbox.
+paypal = ["paypal-agent-toolkit>=0.1.0", "openai>=1.30"]
+dev = ["pytest>=7.0", "ruff>=0.1.0"]
+
+[project.urls]
+Homepage = "https://github.com/TheDub-lab/paypal-agentsafe"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "examples"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = [
+    "E501",   # line length is handled by the formatter, not the linter
+    "B008",   # ScopeRule defaults are the API; call-time binding is clearer
+    "SIM108", # ternaries are not always clearer than if/else
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The vendored governance core is kept as close to its original form as the
+# linter allows. Style-only rules are not applied to it, so that a future
+# `ruff check` cannot silently rewrite vendored code and quietly widen the diff
+# from upstream. Real defects (F, B) are still enforced.
+"src/paypal_guard/governance/*.py" = ["E402", "SIM102", "SIM103", "SIM105", "UP035", "UP006"]
+"examples/*.py" = ["E402"]

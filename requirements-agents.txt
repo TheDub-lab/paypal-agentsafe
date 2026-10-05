@@ -1,0 +1,20 @@
+# Everything needed to run against the real PayPal sandbox.
+#
+#     pip install -r requirements-agents.txt
+#
+# The guard itself has no dependencies. These are only for the live example.
+
+# PayPal's official agent toolkit: PayPal APIs as agent tools, for OpenAI's
+# Agents SDK, LangChain, CrewAI, Bedrock, MCP, and Vercel's AI SDK.
+paypal-agent-toolkit>=0.1.0
+
+# Agent runtime and model access for examples/agentsdk_agent.py.
+# The PyPI distribution for OpenAI's Agents SDK is `openai-agents`; it imports as
+# `agents`. There is no package named `agents`.
+openai>=1.30
+openai-agents>=0.0.9
+python-dotenv>=1.0
+
+# Development only.
+pytest>=7.0
+ruff>=0.1.0

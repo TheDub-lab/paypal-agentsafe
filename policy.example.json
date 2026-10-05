@@ -1,0 +1,181 @@
+{
+  "_comment": [
+    "Example policy: an AI bookkeeper for merchant ACME-MERCH-4417.",
+    "",
+    "This file is the whole authorisation surface of the agent. The agent cannot",
+    "do anything not named here, and anything named here is further bounded by an",
+    "HTTP-method binding, a parameter schema, and a spend cap.",
+    "",
+    "It is written to compile with zero linter findings. Any rule that drops its",
+    "method binding, its parameter schema, or its cost cap is rejected at load",
+    "time by paypal_guard.policy.compile_policy — the agent does not boot with a",
+    "broader policy than the one you meant to write."
+  ],
+
+  "agent_id": "paypal-bookkeeper",
+  "user_id": "merchant:ACME-MERCH-4417",
+  "budget_limit": 400.0,
+  "approval_threshold_cost": 100.0,
+
+  "allowed_action_types": [
+    "paypal_order_get",
+    "paypal_order_list",
+    "paypal_order_create",
+    "paypal_invoice_get",
+    "paypal_invoice_list",
+    "paypal_invoice_create",
+    "paypal_invoice_send",
+    "paypal_dispute_get",
+    "paypal_dispute_list",
+    "paypal_shipment_create",
+    "paypal_shipment_show"
+  ],
+
+  "allow": [
+    {
+      "action": "paypal_order_get",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/order/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_order_list",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/order/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "additional_properties": false,
+        "properties": {
+          "max_results": { "type": "integer", "minimum": 1, "maximum": 50 }
+        }
+      }
+    },
+    {
+      "action": "paypal_order_create",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/order/*"],
+      "match": "glob",
+      "methods": ["POST"],
+      "max_cost": 75.0,
+      "params": {
+        "required": ["intent", "purchase_units"],
+        "additional_properties": false,
+        "properties": {
+          "intent": { "type": "string", "enum": ["CAPTURE", "AUTHORIZE"] },
+          "purchase_units": { "type": "array" }
+        }
+      }
+    },
+    {
+      "action": "paypal_invoice_get",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/invoice/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_invoice_list",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/invoice/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "additional_properties": false,
+        "properties": {
+          "status": { "type": "string", "enum": ["DRAFT", "SENT", "PAID", "VOIDED"] }
+        }
+      }
+    },
+    {
+      "action": "paypal_invoice_create",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/invoice/*"],
+      "match": "glob",
+      "methods": ["POST"],
+      "max_cost": 150.0,
+      "requires_approval": true,
+      "params": {
+        "required": ["amount"],
+        "additional_properties": false,
+        "properties": {
+          "amount": { "type": "object" },
+          "currency": { "type": "string", "enum": ["USD"] }
+        }
+      }
+    },
+    {
+      "action": "paypal_invoice_send",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/invoice/*"],
+      "match": "glob",
+      "methods": ["POST"],
+      "max_cost": 150.0,
+      "requires_approval": true,
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_dispute_get",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/dispute/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_dispute_list",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/dispute/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "additional_properties": false,
+        "properties": {}
+      }
+    },
+    {
+      "action": "paypal_shipment_create",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/shipment/*"],
+      "match": "glob",
+      "methods": ["POST"],
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" }
+        }
+      }
+    },
+    {
+      "action": "paypal_shipment_show",
+      "targets": ["paypal/merchant/ACME-MERCH-4417/shipment/*"],
+      "match": "glob",
+      "methods": ["GET"],
+      "params": {
+        "required": ["id"],
+        "additional_properties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9]{8,32}$" }
+        }
+      }
+    }
+  ]
+}

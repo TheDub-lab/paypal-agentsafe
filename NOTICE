@@ -1,0 +1,99 @@
+paypal-agentsafe
+Copyright (c) 2026 Michael / TheDub-lab
+
+This product includes software developed as part of the PayPal AI Hackathon
+submission "paypal-agentsafe".
+
+--------------------------------------------------------------------------------
+THIRD-PARTY SOFTWARE: AgentCover Sovereign (vendored)
+--------------------------------------------------------------------------------
+
+The directory `src/paypal_guard/governance/` contains modified copies of three
+modules from AgentCover Sovereign:
+
+    core.py
+    protocol.py
+    scope_linter.py
+
+AgentCover Sovereign
+    Copyright (c) 2026 Michael / TheDub-lab
+    License: MIT
+    Upstream: the `safety-protocol` governance engine from the author's
+    Nebius x NVIDIA Global AI Hackathon submission, `agentcover-sovereign`.
+
+    No public repository URL is given here because none is published for
+    `agentcover-sovereign` at the time of writing. `TheDub-lab/agentcover` is a
+    different project (a Shipaton mobile insurance console) and is not the
+    origin of these modules. The MIT terms are satisfied by the retention of
+    this notice: the copyright and permission text above is reproduced here and
+    the modules remain under their original licence. Add the canonical URL when
+    that repository is published.
+
+The MIT License requires that this notice be retained. It is retained here and
+in the docstring of `src/paypal_guard/governance/__init__.py`.
+
+Why vendored rather than depended upon
+    So that this repository stands alone. A judge, reviewer, or future
+    maintainer can clone one repository and run the full demo, the tests, and
+    the policy compiler with no other project present and no package index
+    dependency. The three modules are stdlib-only by construction, so vendoring
+    them adds no transitive dependencies.
+
+Modifications made in this repository
+    Four, all deliberate, all enumerated in the module docstring of
+    `src/paypal_guard/governance/__init__.py`:
+
+    1. `AuditTrail.verify_integrity` now recomputes each entry's hash and
+       compares it to the recorded value, in addition to checking the chain
+       links. Previously an in-place edit to an entry's payload was undetectable.
+
+    2. `SafetyProtocol.decide_approval` no longer charges the session budget, and
+       no longer records approvals through the monitor. Previously an approved
+       action was charged and counted twice, once on approval and once on the
+       retry that followed it.
+
+    3. `SafetyProtocol.check_scope_only` is new, along with the read-only
+       `frozen` and `revoked` properties. `execute` interleaves scope, budget
+       and approval, so a caller could not ask the scope question on its own.
+       A side-effect-free public scope check was added so that a caller can
+       determine whether an action is in scope before performing priced work on
+       its behalf. The guard needs this: it must know whether an action is in
+       scope *before* firing an amount resolver, because that resolver is a live
+       `orders.get`, and calling it for a merchant the agent was never granted is
+       its own authorisation failure. Likewise, once the kill switch is engaged
+       the guard must be able to observe that without calling `execute`, so it can
+       skip the lookup entirely rather than issue PayPal reads during a fraud
+       freeze. `frozen` and `revoked` expose those two conditions as plain
+       properties. The method and the properties are pure.
+
+    4. Unused `typing` imports removed and redundant `f`-string prefixes
+       dropped, by `ruff check --fix`. No behaviour change. Style-only rules are
+       excluded for this package, so that a later lint run cannot rewrite
+       vendored code and silently widen the diff from upstream.
+
+    No public API was removed or renamed. `frozen` and `revoked` are
+    additions. No design or semantics were changed beyond the defect fixes
+    above.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY SOFTWARE: PayPal
+--------------------------------------------------------------------------------
+
+This project integrates with the PayPal developer platform and the PayPal agent
+toolkit (`@paypal/agent-toolkit`, distributed on PyPI as `paypal-agent-toolkit`),
+which is licensed separately by PayPal and is NOT vendored here. It is an
+optional dependency, installed with:
+
+    pip install -r requirements-agents.txt
+
+PayPal, PayPal.com, and the PayPal logo are trademarks of PayPal, Inc. This
+project is not endorsed by or affiliated with PayPal, Inc. Sandbox credentials
+used during development belong to the developer and must never be committed.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY SOFTWARE: OpenAI (optional)
+--------------------------------------------------------------------------------
+
+The live example uses the OpenAI Agents SDK and a hosted model. Optional, and not
+vendored. Model providers are named only as configurable dependencies; no model
+weights are included.

@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The package targets 3.10+; the guard is stdlib only so there is
+        # nothing to install beyond the tooling.
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Test
+        run: pytest --verbose
+
+      - name: Demo must run clean, with no credentials
+        # The demo is the submission's primary artefact. If it stops working,
+        # judges cannot run it, so it is a test rather than a script nobody runs.
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python examples/offline_demo.py
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No credentials committed
+        run: |
+          # Guards against the most damaging mistake in a repo that handles
+          # payment credentials: a real key in a real file.
+          if git grep -nIE \
+            '(PAYPAL_CLIENT_SECRET|PAYPAL_CLIENT_ID|OPENAI_API_KEY)[[:space:]]*=[[:space:]]*[A-Za-z0-9_-]{20,}' \
+            -- . ':!.env.example'; then
+            echo "::error::possible live credential committed"
+            exit 1
+          fi
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env is tracked but should be gitignored"
+            exit 1
+          fi
+          echo "no credentials found"
