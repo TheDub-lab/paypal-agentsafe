@@ -189,11 +189,11 @@ docs/             threat model
 ## Attribution, and two bugs this found
 
 The governance engine in `src/paypal_guard/governance/` is vendored from
-AgentCover Sovereign (MIT), our earlier submission for the Nebius x NVIDIA
-hackathon, which is not yet published. See `NOTICE` for its provenance and the
-full list of changes. It is vendored deliberately, and only in its stdlib-only
-form, so this repository stands alone: one clone, one `pip install`, one demo,
-no second project and no package index.
+[AgentCover Sovereign](https://github.com/TheDub-lab/agentcover-sovereign) (MIT),
+our earlier submission for the Nebius x NVIDIA hackathon. See `NOTICE` for its
+provenance and the full list of changes. It is vendored deliberately, and only
+in its stdlib-only form, so this repository stands alone: one clone, one
+`pip install`, one demo, no second project and no package index.
 
 Integrating it against PayPal surfaced two defects in it, both found by running
 the demo rather than by reading the code:

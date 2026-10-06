@@ -18,16 +18,16 @@ modules from AgentCover Sovereign:
 AgentCover Sovereign
     Copyright (c) 2026 Michael / TheDub-lab
     License: MIT
-    Upstream: the `safety-protocol` governance engine from the author's
-    Nebius x NVIDIA Global AI Hackathon submission, `agentcover-sovereign`.
+    Upstream: https://github.com/TheDub-lab/agentcover-sovereign
 
-    No public repository URL is given here because none is published for
-    `agentcover-sovereign` at the time of writing. `TheDub-lab/agentcover` is a
-    different project (a Shipaton mobile insurance console) and is not the
-    origin of these modules. The MIT terms are satisfied by the retention of
-    this notice: the copyright and permission text above is reproduced here and
-    the modules remain under their original licence. Add the canonical URL when
-    that repository is published.
+        The `safety-protocol` governance engine, from the author's Nebius x
+        NVIDIA Global AI Hackathon submission. Its own LICENSE file carries the
+        MIT text. That file was added at the same time these modules were
+        vendored, because `pyproject.toml` there asserted MIT in metadata
+        without ever shipping the licence.
+
+    Not the origin of these modules: `TheDub-lab/agentcover`, a Shipaton mobile
+    insurance console, despite the similar name.
 
 The MIT License requires that this notice be retained. It is retained here and
 in the docstring of `src/paypal_guard/governance/__init__.py`.
